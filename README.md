@@ -16,7 +16,7 @@ IE: `.b +3` will roll 2d6+3, or `.b -2` will roll 2d6-2.
 
 ### Edges and Obstacles
 
-If the roll has an edge or obstacle, use `+` or `-` after the roll number. One for minor and two for major.
+If the roll has an edge or obstacle, use `+` or `-` after the roll number. One for minor (`+` and `-`) and two for major (`++` and `--`).
 
 Example:
 
