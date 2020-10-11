@@ -45,7 +45,7 @@ function generateOutput(staticBonus, diceObj, edgeObs) {
   const embed = new MessageEmbed()
   .setColor('#E83278')
   .setTitle(`You got a ${totalResult} total!`)
-  .addField(`Use Dice`, `${useWhich[0]} + ${useWhich[1]} + ${staticBonus}`)
+  .addField(`Use Dice`, `${useWhich[0]} + ${useWhich[1]} ${staticBonus < 0 ? '' : '+'} ${parseInt(staticBonus)}`)
   .addField('Dice results', `${useWhich.join(', ')}`);
 
   return embed;
