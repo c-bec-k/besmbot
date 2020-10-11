@@ -1,107 +1,68 @@
-// import { Client } from "discord.js";
-
-// const client = new Client();
-
+const fs = require('fs');
 const Discord = require('discord.js');
+const { prefix } = require('./config.json');
+const { token } = require('./token.json')
+
 const client = new Discord.Client();
-require("dotenv").config();
+client.commands = new Discord.Collection();
 
-client.on("message", message => {
-  if (message.author.bot) {
-    return; // Do nothing
-  }
+const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
 
-  const messageText = message.content;
-  if (!messageText.startsWith(".b")) {
-    return; // Ignore, the message wasn't for the bot
-  }
+for (const file of commandFiles) {
+  const command = require(`./commands/${file}`);
+  client.commands.set(command.name, command);
+}
 
-  if (messageText.slice(2).trim().toLowerCase() === 'invite') {
-    message.reply(`click here to invite the bot to your own server!
-    <https://discordapp.com/api/oauth2/authorize?client_id=693559759080521768&scope=bot&permissions=68672>`);
-    return;
-  }
-  
+const cooldowns = new Discord.Collection();
 
-  const argumentsArray = messageText
-    .slice(2)
-    .trim()
-    .split(" ");
-    if (!checkArray(argumentsArray)) {
-      message.react('❓');
-      return;
-    };
 
-  const numberToAdd = parseInt(argumentsArray[0]);
-  const diceToRoll =
-    2 + (argumentsArray.length > 1 ? argumentsArray[1].length : 0);
-  const modifier = argumentsArray.length > 1 ? argumentsArray[1] : 0;
-
-  const diceResults = roller(diceToRoll);
-  const sortedDice = sortDice(diceResults, modifier);
-
-  const diceResult = sortedDice.reduce((a, b) => a + b, 0);
-  const totalResult = diceResult + numberToAdd;
-
-  message.reply(`
-  **Dice Results:** ${diceResults.join(", ")}
-  **Total Result:**  ${sortedDice.join(" + ")} + ${numberToAdd} = ${totalResult}`
-  );
-
+client.once('ready', () => {
+  console.log('Ready!');
 });
 
-function roller(numRolled) {
-  const results = [];
-  let times = 0;
-  do {
-    let rando = Math.floor(Math.random() * 6 + 1);
-    results.push(rando);
-    times++;
-  } while (times < numRolled);
-  return results;
-}
+client.on('message', message => {
+  if (!message.content.startsWith(`${prefix}`) || message.author.bot) return;
+  const args = message.content.slice(prefix.length).trim().split(/ +/);
+  const commandName = args.shift().toLocaleLowerCase();
+  const command =
+    client.commands.get(commandName) ||
+    client.commands.find(
+      (cmd) => cmd.aliases && cmd.aliases.includes(commandName)
+    );
+  if (!command) return;
+  if (command.args && !args.length) {
+    return message.channel.send(`You didn't provide any arguments, ${message.author}!`);
+  }
 
-function sortDice(arr, mod) {
-  if (!mod || !mod.startsWith("-"))
-    return [...arr]
-      .sort()
-      .reverse()
-      .slice(0, 2);
-  return [...arr].sort().slice(0, 2);
-}
+  if (!cooldowns.has(command.name)) {
+    cooldowns.set(command.name, new Discord.Collection());
+  };
 
-function checkArray(arr) {
-  if (arr.length > 2) return false;
-  if (arr[0] === "") return false;
-  if (typeof parseInt(arr[0]) !== "number") return false;
-  if (arr[1] && arr[1].length > 2) return false;
-  if (arr[1] === "-" || arr[1] === "+" || arr[1] === "--" || arr[1] === "++")
-    return true;
-  return true;
-}
+  const now = Date.now();
+  const timestamps = cooldowns.get(command.name);
+  const cooldownAmount = (command.cooldown || 3) * 1000;
+  if (timestamps.has(message.author.id)) {
+    const expirationTime = timestamps.get(message.author.id) + cooldownAmount;
 
-function messageHandler() {
-  const argumentsArray = messageText
-    .slice(2)
-    .trim()
-    .split(" ");
-  if (!checkArray(argumentsArray)) return;
+    if (now < expirationTime) {
+      const timeLeft = (expirationTime - now) / 1000;
+      return message.reply(
+        `please wait ${timeLeft.toFixed(
+          1
+        )} more second(s) before reusing the \`${command.name}\` command.`
+      );
+    }
+  }
 
-  const numberToAdd = parseInt(argumentsArray[0]);
-  const diceToRoll =
-    2 + (argumentsArray.length > 1 ? argumentsArray[1].length : 0);
-  const modifier = argumentsArray.length > 1 ? argumentsArray[1] : 0;
+  timestamps.set(message.author.id, now);
+  setTimeout(() => timestamps.delete(message.author.id), cooldownAmount);
 
-  const diceResults = roller(diceToRoll);
-  const sortedDice = sortDice(diceResults, modifier);
+  try {
+    command.execute(message, args);
+  } catch (error) {
+    console.error(error);
+    message.reply("there was an error trying to execute that command!");
+  }
+});
 
-  const diceResult = sortedDice.reduce((a, b) => a + b, 0);
-  const totalResult = diceResult + numberToAdd;
-}
-
-
-
-
-
-
-client.login(process.env.DISCORD_TOKEN);
+client.login(token);

@@ -1,18 +1,22 @@
 {
   "name": "besmbot",
-  "version": "0.1.0",
-  "description": "A dice roller for BESM RPG",
+  "version": "0.2.0",
+  "description": "A dice roller for BESM by Dyskami",
   "main": "bot.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "c__beck",
-  "license": "ISC",
-  "dependencies": {
-    "discord.js": "^12.1.1"
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/c-bec-k/besmbot.git"
   },
-  "devDependencies": {
-    "dotenv": "^8.2.0",
-    "nodemon": "^2.0.2"
+  "author": "beck",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/c-bec-k/besmbot/issues"
+  },
+  "homepage": "https://github.com/c-bec-k/besmbot#readme",
+  "dependencies": {
+    "discord.js": "^12.3.1"
   }
 }
