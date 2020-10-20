@@ -57,7 +57,7 @@ function generateOutput(staticBonus, diceObj, edgeObs, who) {
   .setTitle(`You got a ${totalResult} total!`)
   .addField(`Use Dice`, `${useWhich[0].emoji} + ${useWhich[1].emoji} ${staticBonus < 0 ? '' : '+'} ${parseInt(staticBonus)}`)
   .addField('Dice results', `${emojis.join(' ')}`)
-  .setFooter(`${who.username}`, who.avatarURL());;
+  .setFooter(`${who.displayName}`, who.user.avatarURL());;
 
   return embed;
 }
@@ -76,7 +76,8 @@ module.exports = {
       diceToRoll += edgeObs.length;
     }
     const diceResults = getDiceResults(diceToRoll);
-    const output = generateOutput(staticBonus, diceResults, edgeObs, message.author);
+    console.log();
+    const output = generateOutput(staticBonus, diceResults, edgeObs, message.member);
     message.reply({embed: output});
 
   }
