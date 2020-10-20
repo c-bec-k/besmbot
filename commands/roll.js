@@ -68,7 +68,6 @@ module.exports = {
   aliases: ["r", "dice"],
   usage: " [number to add] [optional edge/obstacle]",
   cooldown: 5,
-  args: true,
   execute(message, args) {
     let [ ignored, staticBonus, edgeObs] = parseArgs(args.join(' '));
     if (typeof(staticBonus) === 'undefined') staticBonus = 0;

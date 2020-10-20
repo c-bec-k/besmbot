@@ -1,6 +1,6 @@
 {
   "name": "besmbot",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "A dice roller for BESM by Dyskami",
   "main": "bot.js",
   "scripts": {
