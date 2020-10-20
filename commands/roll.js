@@ -1,20 +1,29 @@
 const { MessageEmbed } = require('discord.js');
 
+const dice = [
+  {result: 1, emoji: '<:Result1:768110374742130698>'},
+  {result: 2, emoji: '<:Result2:768110374570164285>'},
+  {result: 3, emoji: '<:Result3:768110375131938816>'},
+  {result: 4, emoji: '<:Result4:768110375006502914>'},
+  {result: 5, emoji: '<:Result5:768110375275069460>'},
+  {result: 6, emoji: '<:Result6:768110375416889344>'},
+]
+
 function rollADie() {
-  return Math.floor(Math.random() * 6) +1;
+  return Math.floor(Math.random() * 6);
 }
 
 function getDiceResults(num) {
   let timesRolled = 0;
   const diceResults = [];
   while (timesRolled < num) {
-    diceResults.push(rollADie());
+    diceResults.push(dice[rollADie()]);
     timesRolled++;
   };
   const finalResults = {
     results: diceResults,
-    sorted: Array.from(diceResults).sort(),
-    revSorted: Array.from(diceResults).sort().reverse(),
+    sorted: Array.from(diceResults).sort( (a, b) => b.result - a.result),
+    revSorted: Array.from(diceResults).sort((a, b) => a.result - b.result)
   };
   return finalResults;
 }
@@ -25,28 +34,31 @@ function parseArgs(string) {
   return match;
 }
 
-function generateOutput(staticBonus, diceObj, edgeObs) {
+function generateOutput(staticBonus, diceObj, edgeObs, who) {
   let useWhich;
   switch (edgeObs) {
     case '+':
     case '++':
-     useWhich = diceObj.revSorted;
+     useWhich = diceObj.sorted;
       break;
     case '-':
     case '--':
-     useWhich = diceObj.sorted;
+     useWhich = diceObj.RevSorted;
       break;
     default:
      useWhich = diceObj.results;
       break;
   };
   const actualRoll = diceObj.results;
-  const totalResult = parseInt(staticBonus) + parseInt(useWhich[0]) + parseInt(useWhich[1]);
+  const emojis = Array.from(diceObj.results).map(el => el.emoji);
+  console.log(emojis);
+  const totalResult = parseInt(staticBonus) + useWhich[0].result + useWhich[1].result;
   const embed = new MessageEmbed()
   .setColor('#E83278')
   .setTitle(`You got a ${totalResult} total!`)
-  .addField(`Use Dice`, `${useWhich[0]} + ${useWhich[1]} ${staticBonus < 0 ? '' : '+'} ${parseInt(staticBonus)}`)
-  .addField('Dice results', `${useWhich.join(', ')}`);
+  .addField(`Use Dice`, `${useWhich[0].emoji} + ${useWhich[1].emoji} ${staticBonus < 0 ? '' : '+'} ${parseInt(staticBonus)}`)
+  .addField('Dice results', `${emojis.join(' ')}`)
+  .setFooter(`${who.username}`, who.avatarURL());;
 
   return embed;
 }
@@ -66,7 +78,7 @@ module.exports = {
       diceToRoll += edgeObs.length;
     }
     const diceResults = getDiceResults(diceToRoll);
-    const output = generateOutput(staticBonus, diceResults, edgeObs);
+    const output = generateOutput(staticBonus, diceResults, edgeObs, message.author);
     message.reply({embed: output});
 
   }
