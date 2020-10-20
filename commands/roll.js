@@ -76,7 +76,7 @@ module.exports = {
       diceToRoll += edgeObs.length;
     }
     const diceResults = getDiceResults(diceToRoll);
-    const output = generateOutput(staticBonus, diceResults, edgeObs, message.author);
+    const output = generateOutput(staticBonus, diceResults, edgeObs, message.member.nickname);
     message.reply({embed: output});
 
   }
