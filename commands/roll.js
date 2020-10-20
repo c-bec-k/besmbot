@@ -43,15 +43,15 @@ function generateOutput(staticBonus, diceObj, edgeObs, who) {
       break;
     case '-':
     case '--':
-     useWhich = diceObj.RevSorted;
+     useWhich = diceObj.revSorted;
       break;
     default:
      useWhich = diceObj.results;
       break;
   };
+  console.log(useWhich);
   const actualRoll = diceObj.results;
   const emojis = Array.from(diceObj.results).map(el => el.emoji);
-  console.log(emojis);
   const totalResult = parseInt(staticBonus) + useWhich[0].result + useWhich[1].result;
   const embed = new MessageEmbed()
   .setColor('#E83278')
@@ -72,12 +72,14 @@ module.exports = {
   args: true,
   execute(message, args) {
     let [ ignored, staticBonus, edgeObs] = parseArgs(args.join(' '));
+    console.log(edgeObs);
     if (typeof(staticBonus) === 'undefined') staticBonus = 0;
     let diceToRoll = 2;
     if (edgeObs) {
       diceToRoll += edgeObs.length;
     }
     const diceResults = getDiceResults(diceToRoll);
+    console.log('Dice Results: ', diceResults)
     const output = generateOutput(staticBonus, diceResults, edgeObs, message.author);
     message.reply({embed: output});
 
