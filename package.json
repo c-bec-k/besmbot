@@ -17,6 +17,6 @@
   },
   "homepage": "https://github.com/c-bec-k/besmbot#readme",
   "dependencies": {
-    "discord.js": "^12.3.1"
+    "discord.js": "^12.5.1"
   }
 }
